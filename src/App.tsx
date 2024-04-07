@@ -40,7 +40,7 @@ function App() {
             <List />
           </section>
           <section className="full-page" ref={refs.report}>
-            <div className="h-full flex items-end justify-center">built with ❤️ by&nbsp;<a href="http://www.github.com/ferraridavide" className="underline underline-offset-4">Davide Ferrari</a></div>
+            <div className="h-full flex items-end justify-center">built with ❤️ by&nbsp;<a href="https://ferraridavide.github.io/" className="underline underline-offset-4">Davide Ferrari</a></div>
           </section>
         </main>
         <Toaster />

@@ -47,6 +47,7 @@ import { cn } from '@/lib/utils'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '@/components/ui/use-toast'
 import { useBackend } from '@/services/backendService'
+import { getAvailability } from './Lucky'
 
 const FAV_AULE_STORAGE_KEY = 'favoritedAulas'
 
@@ -212,7 +213,7 @@ function DataTableDemo() {
             accessorKey: "availability",
             header: "Libera per",
             cell: ({ row }) => {
-                return <div>{toChiusura(row.getValue("availability"))}</div>
+                return <div>{getAvailability(row.getValue("availability"))}</div>
             },
         },
         {
@@ -280,7 +281,7 @@ function DataTableDemo() {
                                     <div className="flex justify-between align-center">
                                         <div className="flex flex-col">
                                             <span className="font-bold">{row.getValue("name")}</span>
-                                            <span>{toChiusura(row.getValue("availability"))}</span>
+                                            <span>{getAvailability(row.getValue("availability"))}</span>
                                         </div>
                                         {ActionsComponent(row)}
                                     </div>

@@ -1,4 +1,4 @@
-import { motion, useMotionValue, useTransform, MotionStyle, color, useTime, easeInOut } from "framer-motion";
+import { motion, useMotionValue, useTransform, MotionStyle, color, useTime, easeInOut, easeIn, circInOut, backInOut } from "framer-motion";
 import move from "lodash-move";
 import { useState } from "react";
 const CARD_COLORS = ["#266678", "#cb7c7a", " #36a18b", "#cda35f", "#747474"];
@@ -7,6 +7,60 @@ const SCALE_FACTOR = 0.06;
 
 import './Lucky.css'
 import { useBackend } from "@/services/backendService";
+
+
+function findInterval(arr: string[], num: number) {
+  // Initialize variables to store the result
+  let isInInterval = false;
+  let nextInterval = null;
+  let intervalEnd = null;
+
+  // Iterate through each interval
+  for (let i = 0; i < arr.length; i++) {
+      // Parse the interval string to extract start and end numbers
+      const [startStr, endStr] = arr[i].split(":");
+      const start = parseInt(startStr);
+      const end = parseInt(endStr);
+
+      // Check if the number falls within the interval
+      if (num >= start && num <= end) {
+          isInInterval = true;
+          nextInterval = end; // Store the end of the interval
+          break; // Exit the loop since we found the interval
+      }
+      // Check if the number is before the start of this interval
+      else if (num < start) {
+          nextInterval = start;
+          break; // No need to continue looping
+      }
+  }
+
+  // Return the result
+  return { isInInterval, nextInterval };
+}
+
+function minutesToTime(minutes: number) {
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+
+  // Pad the hours and minutes with leading zeros if necessary
+  const paddedHours = hours.toString().padStart(2, '0');
+  const paddedMins = mins.toString().padStart(2, '0');
+
+  return `${paddedHours}:${paddedMins}`;
+}
+
+export function getAvailability(arr: string[]){
+  const interval = findInterval(arr, new Date().getHours() * 60 + new Date().getMinutes());
+  return (interval.isInInterval ? "Chiusa" : "Aperta") + " fino " + (interval.nextInterval ? "alle " + minutesToTime(interval.nextInterval) : " a chiusura");
+}
+
+// Example usage:
+// const intervals = ["10:20", "30:40"];
+// const number = 30;
+// const result = findInterval(intervals, number);
+// console.log(`Is ${number} inside any interval? ${result.isInInterval}`);
+// console.log(`Next interval start after ${number}: ${result.nextInterval}`);
 
 const cardStyle: MotionStyle = {
   position: "absolute",
@@ -35,10 +89,12 @@ const Card = (props: any) => {
   const tutorialCondition = props.index == 0 && props.tutorial;
   const time = useTime();
   const loopTime = useTransform(() => time.get() % 4000);
-  const tutorialAnimation = useTransform(loopTime, [0, 500, 1000, 1500, 2000], [0, 100, 100, 0, 0], {clamp: true, ease: easeInOut});
+  const tutorialAnimation = useTransform(loopTime, [0, 3000, 3400, 3600, 4000], [0, 0, 100,100, 0], {clamp: true, ease: circInOut});
   const xVal = useMotionValue(0);
   const x = useTransform(() => xVal.get() + (tutorialCondition ? tutorialAnimation.get() : 0));
   const rotate = useTransform(x, [-700, 700], [-45, 45]);
+
+ 
 
   return (
     <motion.li
@@ -62,14 +118,15 @@ const Card = (props: any) => {
         right: 0,
         left: 0,
       }}
-      onDragEnd={() => {
+      onDragEnd={(event, info) => {
+        if (Math.hypot(info.offset.x, info.offset.y) < 100) return;
         props.moveToEnd(props.index);
       }}
     >
       <h1 className="hero-text">{props.color.short_name}</h1>
     <div className="hero-details">
       <span>{props.color.name} - {props.color.building}</span>
-      <span>{props.color.availability}</span>
+      <span>{getAvailability(props.color.availability)}</span>
     </div>
     </motion.li>
   );
