@@ -1,4 +1,4 @@
-import { motion, useMotionValue, useTransform, MotionStyle, color } from "framer-motion";
+import { motion, useMotionValue, useTransform, MotionStyle, color, useTime, easeInOut } from "framer-motion";
 import move from "lodash-move";
 import { useState } from "react";
 const CARD_COLORS = ["#266678", "#cb7c7a", " #36a18b", "#cda35f", "#747474"];
@@ -31,7 +31,13 @@ function clamp(number: number, min:number, max:number) {
 }
 
 const Card = (props: any) => {
-  const x = useMotionValue(0);
+
+  const tutorialCondition = props.index == 0 && props.tutorial;
+  const time = useTime();
+  const loopTime = useTransform(() => time.get() % 4000);
+  const tutorialAnimation = useTransform(loopTime, [0, 500, 1000, 1500, 2000], [0, 100, 100, 0, 0], {clamp: true, ease: easeInOut});
+  const xVal = useMotionValue(0);
+  const x = useTransform(() => xVal.get() + (tutorialCondition ? tutorialAnimation.get() : 0));
   const rotate = useTransform(x, [-700, 700], [-45, 45]);
 
   return (
@@ -72,20 +78,21 @@ const Card = (props: any) => {
 function Lucky(){
   const backend = useBackend();
   
-
+  const [tutorial, setTutorial] = useState(true);
   const [cards, setCards] = useState(backend);
   const moveToEnd = (from: number) => {
     setCards(move(cards, from, cards.length - 1));
   };
 
   return (
-    <div style={wrapperStyle}>
+    <div style={wrapperStyle} onMouseDown={() => setTutorial(false)} onTouchStart={() => setTutorial(false)}>
       <ul className="cardWrap">
         {[...cards.slice(0,3), cards[cards.length -1]].map((color, index) => {
           const canDrag = index === 0;
 
           return (
             <Card
+              tutorial={tutorial}
               key={color.id}
               color={color}
               index={index}

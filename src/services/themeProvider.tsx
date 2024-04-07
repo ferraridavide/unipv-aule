@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react"
 
 type Theme = "dark" | "light" | "system"
-const themes: Theme[] = ["light", "dark", "system"];
+const themes: Theme[] = ["light", "dark"];
 
 type ThemeProviderProps = {
   children: React.ReactNode
