@@ -18,7 +18,7 @@ const router = createBrowserRouter([
     path: "/report",
     element: <Report />,
   }
-]);
+], {basename: "/unipv-aule"});
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

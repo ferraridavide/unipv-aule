@@ -5,7 +5,7 @@
   "homepage": "https://ferraridavide.github.io/unipv-aule/",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 3777 --host",
+    "dev": "vite --port 3777 --host --base=/unipv-aule",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",

@@ -9,8 +9,6 @@ class BackendService {
 
     private constructor() {
         // Initialize the Supabase client
-        console.log(import.meta.env.VITE_SUPABASE_URL)
-        console.log(import.meta.env.VITE_SUPABASE_ANON_KEY)
         this.client = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY)
     }
 

@@ -124,8 +124,6 @@ const servizi = [{label: "Proiettore", value:"projector", icon: Projector}, {lab
 function DataTableDemo() {
     const navigate = useNavigate();
     const backend = useBackend();
-
-    console.log(backend);
     const {toast} = useToast();
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
@@ -191,11 +189,11 @@ function DataTableDemo() {
     }
 
     function ServiziComponent(row: Row<Aula>): any {
-        return <div className='justify-end flex gap-1 flex-wrap'>
+        return <div className='justify-end flex gap-1 flex-wrap' key={row.id}>
                     {
                         row.getValue<string[]>("services") &&
                     row.getValue<string[]>("services").map((servizio: string) => 
-                    <Badge variant="outline">{servizi.find(x => x.value == servizio)?.label}</Badge>)
+                    <Badge variant="outline" key={servizio}>{servizi.find(x => x.value == servizio)?.label}</Badge>)
                     }
                 </div>
     }
