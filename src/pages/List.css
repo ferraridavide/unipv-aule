@@ -1,0 +1,38 @@
+.list-container {
+    padding: 2rem;
+    overflow-y: scroll;
+    height: 100%;
+}
+
+.grid-container {
+    height: 100%;
+    overflow: hidden;
+}
+
+.card-container {
+    height: 100%;
+    overflow: auto;
+}
+
+.small-card {
+    padding: 1rem;
+    border-bottom: 1px solid hsl(var(--border));
+}
+
+.small-card:last-child {
+    border-bottom: none;
+}
+
+.grid-container > div {
+    height: 100%;
+}
+
+th {
+    position: sticky;
+    top: 0;
+    background-color: hsl(var(--background));
+}
+
+thead {
+    background-color: hsl(var(--background));
+}

@@ -1,0 +1,46 @@
+html, body {
+  width: 100%;
+  position: relative;
+}
+
+
+.app-container {
+  scroll-snap-type: y mandatory;
+  height: 100dvh; /* Dynamic viewport unit for mobile phone*/
+  width: 100vw;
+  overflow-y: scroll;
+}
+
+.full-page {
+  height: 100dvh;
+  scroll-snap-align: start;
+  padding-bottom: calc(60px + 2rem + 2rem);
+  box-sizing: border-box;
+  padding-top: 2rem;
+  padding-right: 2rem;
+  padding-left: 2rem;
+}
+
+.hero {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-details {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1rem;
+  bottom: 0px;
+  width: 100%;
+}
+
+.hero-text {
+  font-weight: bold;
+  font-size: min(20vw, 20vh, 8rem);
+}

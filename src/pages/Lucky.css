@@ -1,0 +1,16 @@
+.card {
+    height: 100%;
+    width: 100%;
+    background-color: hsl(var(--accent));
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.12);
+}
+
+.cardWrap {
+    position: relative;
+    --maxSize: 20rem;
+    height: 100%;
+    width: 100%;
+    max-height: calc(var(--maxSize) * 1.5);
+    max-width: var(--maxSize);
+}

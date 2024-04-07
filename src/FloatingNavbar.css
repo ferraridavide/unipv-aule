@@ -1,0 +1,61 @@
+:root {
+    --item-size: 40px;
+}
+
+.floating-navbar {
+    position: absolute;
+    background-color: hsl(var(--accent));
+    border-radius: 9999px;
+    border:1px solid hsl(0 0% 0% / 0.071);
+
+    height: calc(var(--item-size) * 1.5);
+    padding: calc(var(--item-size) * 0.25);
+
+    width: fit-content;
+    display: flex;
+    align-items: center;
+
+    z-index: 20;
+    right:0;
+    left: 50%;
+    opacity:0;
+    transform: translateX(-50%) translateY(80px);
+    bottom: 2rem;
+
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.12);
+
+    animation: 500ms ease 200ms 1 normal forwards running k-up;
+    gap: calc(var(--item-size) * 0.25);
+}
+
+.nav-item {
+    flex: 1 0 auto;
+    height: var(--item-size);
+    width: var(--item-size);
+    cursor: pointer;
+    background-color: hsl(var(--card));
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-separator {
+    height: 50%;
+    width: 1px;
+    background-color: hsl(0 0% 0% / 0.071);
+}
+
+
+
+
+@keyframes k-up {
+    0% {
+      opacity:0;
+      transform:translateX(-50%) translateY(80px)
+    }
+    100% {
+      opacity:1;
+      transform:translateX(-50%) translateY(0)
+    }
+  }
