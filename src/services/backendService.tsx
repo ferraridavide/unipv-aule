@@ -1,3 +1,4 @@
+import { findInterval, getAvailability } from '@/pages/Lucky'
 import { SupabaseClient, createClient } from '@supabase/supabase-js'
 import { ReactNode, createContext, useContext, useEffect, useState, Suspense } from 'react'
 
@@ -52,13 +53,31 @@ export function BackendProvider ({ children } : BackendProviderProps) {
 
     useEffect(() => {
         const fetchAvailableAule = async () => {
-            const aule = await backendService.getAvailableAule()
+            let aule = await backendService.getAvailableAule()
+            if (!aule) return;
+            aule = aule.map((color, index) => {
+                const interval = findInterval(color.availability, new Date().getHours() * 60 + new Date().getMinutes());
+                return {
+                  ...color,
+                  interval: interval,
+                  availability_text: getAvailability(interval)
+                };
+              });
+            
+              aule = aule.sort((a, b) => {
+                if (a.interval.IsInInterval === b.interval.IsInInterval) {
+                  return b.interval.wait - a.interval.wait;
+                }
+                return a.interval.IsInInterval ? 1 : -1;
+              });
             setAvailableAule(aule)
         };
         fetchAvailableAule();
     }, [])
 
     if (!availableAule) return <div>Loading...</div>
+
+    
 
     return (
             <BackendContext.Provider value={availableAule}>

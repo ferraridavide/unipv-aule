@@ -47,56 +47,9 @@ import { cn } from '@/lib/utils'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '@/components/ui/use-toast'
 import { useBackend } from '@/services/backendService'
-import { getAvailability } from './Lucky'
+import { findInterval, getAvailability } from './Lucky'
 
 const FAV_AULE_STORAGE_KEY = 'favoritedAulas'
-
-
-const invoices = [
-    {
-        invoice: "INV001",
-        paymentStatus: "Paid",
-        totalAmount: "$250.00",
-        paymentMethod: "Credit Card",
-    },
-    {
-        invoice: "INV002",
-        paymentStatus: "Pending",
-        totalAmount: "$150.00",
-        paymentMethod: "PayPal",
-    },
-    {
-        invoice: "INV003",
-        paymentStatus: "Unpaid",
-        totalAmount: "$350.00",
-        paymentMethod: "Bank Transfer",
-    },
-    {
-        invoice: "INV004",
-        paymentStatus: "Paid",
-        totalAmount: "$450.00",
-        paymentMethod: "Credit Card",
-    },
-    {
-        invoice: "INV005",
-        paymentStatus: "Paid",
-        totalAmount: "$550.00",
-        paymentMethod: "PayPal",
-    },
-    {
-        invoice: "INV006",
-        paymentStatus: "Pending",
-        totalAmount: "$200.00",
-        paymentMethod: "Bank Transfer",
-    },
-    {
-        invoice: "INV007",
-        paymentStatus: "Unpaid",
-        totalAmount: "$300.00",
-        paymentMethod: "Credit Card",
-    },
-]
-
 
 
 type Aula = {
@@ -106,17 +59,11 @@ type Aula = {
     name: string
     availability: string[]
     services: string[]
+    website: string
 
 }
 
-function toChiusura(chiusura: number) {
-    switch (chiusura) {
-        case -1:
-            return "Fino a chiusura";
-        default:
-            return "Indefinito";
-    }
-}
+
 
 const servizi = [{label: "Proiettore", value:"projector", icon: Projector}, {label: "LIM", value: "lim", icon: Tv2}, {label: "Prese", value: "plugs", icon: Plug}]
 
@@ -125,6 +72,7 @@ const servizi = [{label: "Proiettore", value:"projector", icon: Projector}, {lab
 function DataTableDemo() {
     const navigate = useNavigate();
     const backend = useBackend();
+
     const {toast} = useToast();
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
@@ -182,6 +130,7 @@ function DataTableDemo() {
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                     <DropdownMenuItem onClick={() => reportUnavailable(row.original)}>Report as unavailable</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate("/report")}>Report issue</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => window.open(row.original.website, "_blank", "noreferrer")}>Open room calendar</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
             <Button variant="ghost" className="w-8 h-8 p-0" onClick={() => toggleAula(row.original.id)}>
@@ -209,11 +158,11 @@ function DataTableDemo() {
             ),
         },
         {
-            id: "availability",
-            accessorKey: "availability",
+            id: "availability_text",
+            accessorKey: "availability_text",
             header: "Libera per",
             cell: ({ row }) => {
-                return <div>{getAvailability(row.getValue("availability"))}</div>
+                return <div>{row.getValue("availability_text")}</div>
             },
         },
         {
@@ -281,7 +230,7 @@ function DataTableDemo() {
                                     <div className="flex justify-between align-center">
                                         <div className="flex flex-col">
                                             <span className="font-bold">{row.getValue("name")}</span>
-                                            <span>{getAvailability(row.getValue("availability"))}</span>
+                                            <span>{row.getValue("availability_text")}</span>
                                         </div>
                                         {ActionsComponent(row)}
                                     </div>

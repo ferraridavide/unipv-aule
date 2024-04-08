@@ -1,19 +1,19 @@
 import { motion, useMotionValue, useTransform, MotionStyle, color, useTime, easeInOut, easeIn, circInOut, backInOut } from "framer-motion";
 import move from "lodash-move";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 const CARD_COLORS = ["#266678", "#cb7c7a", " #36a18b", "#cda35f", "#747474"];
 const CARD_OFFSET = 10;
 const SCALE_FACTOR = 0.06;
 
 import './Lucky.css'
 import { useBackend } from "@/services/backendService";
+import { LucideTableCellsMerge } from "lucide-react";
 
 
-function findInterval(arr: string[], num: number) {
+export function findInterval(arr: string[], num: number) {
   // Initialize variables to store the result
   let isInInterval = false;
   let nextInterval = null;
-  let intervalEnd = null;
 
   // Iterate through each interval
   for (let i = 0; i < arr.length; i++) {
@@ -36,7 +36,7 @@ function findInterval(arr: string[], num: number) {
   }
 
   // Return the result
-  return { isInInterval, nextInterval };
+  return { isInInterval, nextInterval, wait: nextInterval ? nextInterval - num : null};
 }
 
 function minutesToTime(minutes: number) {
@@ -50,8 +50,7 @@ function minutesToTime(minutes: number) {
   return `${paddedHours}:${paddedMins}`;
 }
 
-export function getAvailability(arr: string[]){
-  const interval = findInterval(arr, new Date().getHours() * 60 + new Date().getMinutes());
+export function getAvailability(interval: any){
   return (interval.isInInterval ? "Chiusa" : "Aperta") + " fino " + (interval.nextInterval ? "alle " + minutesToTime(interval.nextInterval) : " a chiusura");
 }
 
@@ -126,7 +125,7 @@ const Card = (props: any) => {
       <h1 className="hero-text">{props.color.short_name}</h1>
     <div className="hero-details">
       <span>{props.color.name} - {props.color.building}</span>
-      <span>{getAvailability(props.color.availability)}</span>
+      <span>{props.color.availability_text}</span>
     </div>
     </motion.li>
   );
@@ -136,6 +135,7 @@ function Lucky(){
   const backend = useBackend();
   
   const [tutorial, setTutorial] = useState(true);
+
   const [cards, setCards] = useState(backend);
   const moveToEnd = (from: number) => {
     setCards(move(cards, from, cards.length - 1));
