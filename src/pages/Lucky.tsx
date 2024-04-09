@@ -51,7 +51,7 @@ function minutesToTime(minutes: number) {
 }
 
 export function getAvailability(interval: any){
-  return (interval.isInInterval ? "Chiusa" : "Aperta") + " fino " + (interval.nextInterval ? "alle " + minutesToTime(interval.nextInterval) : " a chiusura");
+  return (interval.isInInterval ? "Occupata" : "Disponibile") + " fino " + (interval.nextInterval ? "alle " + minutesToTime(interval.nextInterval) : " a chiusura");
 }
 
 // Example usage:

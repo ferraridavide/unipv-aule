@@ -65,10 +65,18 @@ export function BackendProvider ({ children } : BackendProviderProps) {
               });
             
               aule = aule.sort((a, b) => {
-                if (a.interval.IsInInterval === b.interval.IsInInterval) {
-                  return b.interval.wait - a.interval.wait;
+                if (a.interval.isInInterval === b.interval.isInInterval) {
+                    if (b.interval.wait && a.interval.wait) {
+                        if (a.interval.isInInterval){
+                            return a.interval.wait - b.interval.wait;
+                        } else {
+                            return b.interval.wait - a.interval.wait;
+                        }
+                    } else if (a.interval.isInInterval){
+                        return -1;
+                    }
                 }
-                return a.interval.IsInInterval ? 1 : -1;
+                return a.interval.isInInterval ? 1 : -1;
               });
             setAvailableAule(aule)
         };

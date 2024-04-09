@@ -93,8 +93,8 @@ function DataTableDemo() {
 
     function reportUnavailable(aula: Aula): void {
         toast({
-            title: "Thank you for your feedback! ☺️",
-            description: `${aula.name} has been reported as unavailable.`,
+            title: "Grazie per il tuo feedback! ☺️",
+            description: `${aula.name} è stato segnalata come non disponibile.`,
           })
     };
     
@@ -127,10 +127,10 @@ function DataTableDemo() {
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuItem onClick={() => reportUnavailable(row.original)}>Report as unavailable</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/report")}>Report issue</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => window.open(row.original.website, "_blank", "noreferrer")}>Open room calendar</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => window.open(row.original.website, "_blank", "noreferrer")}>Apri calendario aula</DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => reportUnavailable(row.original)}>Segnala come non disponibile</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/report")}>Segnala problema</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
             <Button variant="ghost" className="w-8 h-8 p-0" onClick={() => toggleAula(row.original.id)}>
@@ -209,7 +209,7 @@ function DataTableDemo() {
         <div className="h-full flex flex-col" >
             <div className="flex flex-1 items-center py-4 space-x-2">
                 <Input
-                    placeholder="Filter..."
+                    placeholder="Filtra..."
                     value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
                     onChange={(event) =>
                         table.getColumn("name")?.setFilterValue(event.target.value)
