@@ -24,6 +24,7 @@ function Footer() {
       function login() {
         supabase.auth.signInWithOAuth({
           provider: 'google',
+          options: {redirectTo: 'https://ferraridavide.github.io/unipv-aule'}
         });
       }
 
