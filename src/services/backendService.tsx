@@ -1,3 +1,5 @@
+import { useToast } from '@/components/ui/use-toast';
+import Aula from '@/models/aula';
 import { findInterval, getAvailability } from '@/pages/Lucky'
 import { Session, SupabaseClient, createClient } from '@supabase/supabase-js'
 import { ReactNode, createContext, useContext, useEffect, useState, Suspense } from 'react'
@@ -5,25 +7,47 @@ import { ReactNode, createContext, useContext, useEffect, useState, Suspense } f
 
 // Create a singleton instance of the backend service
 class BackendService {
-    async reportAula(id: number, open: boolean) {
+    async reportAula(aula: Aula) {
 
         if (!this.session) {
+            localStorage.setItem('pendingReport', JSON.stringify(aula));
             await this.client.auth.signInWithOAuth({
                 provider: 'google',
               });
               return;
         } 
-        const { data, error } = await this.client.functions.invoke('report-aula', {
-            body: {id: 1, open: true},
+        await this.client.functions.invoke('report-aula', {
+            body: aula,
             headers: {
               "Authentication": "Bearer " + this.session.access_token
             }
+          })
+
+        
+        const interval = findInterval(aula.availability, new Date().getHours() * 60 + new Date().getMinutes())
+        this.toast({
+            title: "Grazie per il tuo feedback! ☺️",
+            description: `${aula.name} è stato segnalata come ${interval.isInInterval ? "non disponibile" : "disponibile"}.`,
           })
   
     }
     private static instance: BackendService | null = null
     private client: SupabaseClient // Replace 'any' with the appropriate type for your Supabase client
-    public session: Session | null = null
+    private session: Session | null = null
+
+    public toast: any | null = null;
+
+    public setSession(session: Session | null) { 
+        this.session = session;
+        if (!session) return;
+        const pendingReport = localStorage.getItem('pendingReport');
+        if (pendingReport) {
+            const report = JSON.parse(pendingReport);
+            this.reportAula(report);
+            localStorage.removeItem('pendingReport');
+        }
+    }
+
 
     private constructor() {
         // Initialize the Supabase client
@@ -104,16 +128,18 @@ interface BackendProviderProps {
 // Provider component to wrap your app and provide the backend service instance
 export function BackendProvider ({ children } : BackendProviderProps) {
     const [availableAule, setAvailableAule] = useState<any[] | null>(null);
+    const {toast} = useToast();
     const backendService = BackendService.getInstance()
+    backendService.toast = (props: any) => toast({...props});
     useEffect(() => {
         backendService.getSupabase().auth.getSession().then(({ data: { session } }) => {
-          backendService.session = session
+          backendService.setSession(session)
         })
   
         const {
           data: { subscription },
         } = backendService.getSupabase().auth.onAuthStateChange((_event, session) => {
-            backendService.session = session
+            backendService.setSession(session)
         })
   
         return () => subscription.unsubscribe()

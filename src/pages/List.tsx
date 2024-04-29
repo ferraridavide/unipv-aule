@@ -45,24 +45,16 @@ import { Badge } from '@/components/ui/badge'
 import { DataTableFacetedFilter } from '@/components/table/table-filter'
 import { cn } from '@/lib/utils'
 import { useNavigate } from 'react-router-dom'
-import { useToast } from '@/components/ui/use-toast'
 import { useBackend } from '@/services/backendService'
 import { findInterval, getAvailability } from './Lucky'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { AlertDialogDescription } from '@radix-ui/react-alert-dialog'
+import { AuthInvalidCredentialsError } from '@supabase/supabase-js'
+import Aula from '@/models/aula'
 
 const FAV_AULE_STORAGE_KEY = 'favoritedAulas'
 
-type Aula = {
 
-    id: number
-    building: string
-    name: string
-    availability: string[]
-    services: string[]
-    website: string
-
-}
 
 type AlertContextType = {
     open: Aula | null;
@@ -82,7 +74,6 @@ function DataTableDemo() {
     const navigate = useNavigate();
     const backend = useBackend();
 
-    const {toast} = useToast();
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
         []
@@ -102,12 +93,7 @@ function DataTableDemo() {
 
     async function reportUnavailable(aula: Aula | null): Promise<void> {
         if (!aula) return;
-        const interval = findInterval(aula.availability, new Date().getHours() * 60 + new Date().getMinutes())
-        const report = await backend.reportAula(aula.id, !interval.isInInterval);
-        toast({
-            title: "Grazie per il tuo feedback! ☺️",
-            description: `${aula.name} è stato segnalata come ${interval.isInInterval ? "non disponibile" : "disponibile"}.`,
-          })
+        await backend.reportAula(aula);
     };
     
   
@@ -130,10 +116,10 @@ function DataTableDemo() {
     }
 
 
-    function ActionsComponent(row: Row<Aula>): any {
+    function ActionsComponent(row: Row<Aula>, alertCtx: AlertContextType | null = null): any {
         const backend = useBackend();
-        const alert = useContext(alertContext);
-
+        const alertAula = alertCtx ?? useContext(alertContext);
+        
         const interval = findInterval(row.original.availability, new Date().getHours() * 60 + new Date().getMinutes())
         const report_text = !interval.isInInterval ? "Segnala come non disponibile" : "Segnala come disponibile";
         //reportUnavailable(row.original)
@@ -148,7 +134,7 @@ function DataTableDemo() {
                 <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => window.open(row.original.website, "_blank", "noreferrer")}>Apri calendario aula</DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => alert.setOpen(row.original)}>{report_text}</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => alertAula.setOpen(row.original)}>{report_text}</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate("/report")}>Segnala problema</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
@@ -243,7 +229,7 @@ function DataTableDemo() {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <Button variant="outline" onClick={() => setAlertState(null)}>Annulla</Button>
-          <Button onClick={() => {setAlertState(null); reportUnavailable(alertState);}}>Segnala</Button>
+          <Button onClick={() => {reportUnavailable(alertState); setAlertState(null)}}>Segnala</Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -273,14 +259,14 @@ function DataTableDemo() {
                                             <span className="font-bold">{row.getValue("name")}</span>
                                             <span>{row.getValue("availability_text")}</span>
                                         </div>
-                                        {ActionsComponent(row)}
+                                        {ActionsComponent(row, {open: alertState, setOpen: setAlertState})}
                                     </div>
                                     {ServiziComponent(row)}
                                 </div>
                             ))
                         ) : (
                             <div className="sm:hidden">
-                    Nothing to show!
+                    {"Nessun risultato :("}
                     </div>
                         )}
             </div>
@@ -327,7 +313,7 @@ function DataTableDemo() {
                                     colSpan={columns.length}
                                     className="h-24 text-center"
                                 >
-                                    No results.
+                                    {"Nessun risultato :("}
                                 </TableCell>
                             </TableRow>
                         )}
