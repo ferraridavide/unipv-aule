@@ -14,7 +14,7 @@ class BackendService {
             await this.client.auth.signInWithOAuth({
                 provider: 'google',
               });
-              return;
+            return;
         } 
         await this.client.functions.invoke('report-aula', {
             body: aula,
@@ -25,28 +25,28 @@ class BackendService {
 
         
         const interval = findInterval(aula.availability, new Date().getHours() * 60 + new Date().getMinutes())
-        this.toast({
-            title: "Grazie per il tuo feedback! ☺️",
-            description: `${aula.name} è stato segnalata come ${interval.isInInterval ? "non disponibile" : "disponibile"}.`,
-          })
+        // this.toast({
+        //     title: "Grazie per il tuo feedback! ☺️",
+        //     description: `${aula.name} è stato segnalata come ${interval.isInInterval ? "non disponibile" : "disponibile"}.`,
+        //   })
   
     }
     private static instance: BackendService | null = null
     private client: SupabaseClient // Replace 'any' with the appropriate type for your Supabase client
-    private session: Session | null = null
+    public session: Session | null = null
 
-    public toast: any | null = null;
+    // public toast: any | null = null;
 
-    public setSession(session: Session | null) { 
-        this.session = session;
-        if (!session) return;
-        const pendingReport = localStorage.getItem('pendingReport');
-        if (pendingReport) {
-            const report = JSON.parse(pendingReport);
-            this.reportAula(report);
-            localStorage.removeItem('pendingReport');
-        }
-    }
+    // public setSession(session: Session | null) { 
+    //     this.session = session;
+    //     // if (!session) return;
+    //     // const pendingReport = localStorage.getItem('pendingReport');
+    //     // if (pendingReport) {
+    //     //     const report = JSON.parse(pendingReport);
+    //     //     this.reportAula(report);
+    //     //     localStorage.removeItem('pendingReport');
+    //     // }
+    // }
 
 
     private constructor() {
@@ -128,18 +128,18 @@ interface BackendProviderProps {
 // Provider component to wrap your app and provide the backend service instance
 export function BackendProvider ({ children } : BackendProviderProps) {
     const [availableAule, setAvailableAule] = useState<any[] | null>(null);
-    const {toast} = useToast();
+    // const {toast} = useToast();
     const backendService = BackendService.getInstance()
-    backendService.toast = (props: any) => toast({...props});
+    // backendService.toast = (props: any) => toast({...props});
     useEffect(() => {
         backendService.getSupabase().auth.getSession().then(({ data: { session } }) => {
-          backendService.setSession(session)
+          backendService.session = session;
         })
   
         const {
           data: { subscription },
         } = backendService.getSupabase().auth.onAuthStateChange((_event, session) => {
-            backendService.setSession(session)
+            backendService.session = session;
         })
   
         return () => subscription.unsubscribe()
