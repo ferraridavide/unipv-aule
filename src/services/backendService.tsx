@@ -1,12 +1,29 @@
 import { findInterval, getAvailability } from '@/pages/Lucky'
-import { SupabaseClient, createClient } from '@supabase/supabase-js'
+import { Session, SupabaseClient, createClient } from '@supabase/supabase-js'
 import { ReactNode, createContext, useContext, useEffect, useState, Suspense } from 'react'
 
 
 // Create a singleton instance of the backend service
 class BackendService {
+    async reportAula(id: number, open: boolean) {
+
+        if (!this.session) {
+            await this.client.auth.signInWithOAuth({
+                provider: 'google',
+              });
+              return;
+        } 
+        const { data, error } = await this.client.functions.invoke('report-aula', {
+            body: {id: 1, open: true},
+            headers: {
+              "Authentication": "Bearer " + this.session.access_token
+            }
+          })
+  
+    }
     private static instance: BackendService | null = null
     private client: SupabaseClient // Replace 'any' with the appropriate type for your Supabase client
+    public session: Session | null = null
 
     private constructor() {
         // Initialize the Supabase client
@@ -21,9 +38,47 @@ class BackendService {
     }
 
     private availableAule: any[] | null = null;
-    public async getAvailableAule() {
+    public getAvailableAule(): any[] {
+        return this.availableAule!;
+    } 
+
+    public async loadAvailableAule() {
         this.availableAule ??= (await this.client.from('available_aule').select('*')).data
+        if (!this.availableAule) return;
+            this.availableAule = this.availableAule.map((color, index) => {
+                const interval = findInterval(color.availability, new Date().getHours() * 60 + new Date().getMinutes());
+                return {
+                  ...color,
+                  interval: interval,
+                  availability_text: getAvailability(interval)
+                };
+              });
+            
+              this.availableAule = this.availableAule.sort((a, b) => {
+                if (a.interval.isInInterval === b.interval.isInInterval) {
+                    if (b.interval.wait && a.interval.wait) {
+                        if (a.interval.isInInterval){
+                            return a.interval.wait - b.interval.wait;
+                        } else {
+                            return b.interval.wait - a.interval.wait;
+                        }
+                    } else if (a.interval.isInInterval){
+                        return -1;
+                    }
+                }
+                return a.interval.isInInterval ? 1 : -1;
+              });
         return this.availableAule
+    }
+
+    public async loginWithGoogle() {
+        await this.client.auth.signInWithOAuth({
+            provider: 'google',
+          })
+    }
+
+    public getSupabase(): SupabaseClient{
+        return this.client;
     }
 
     // Add your backend service methods here
@@ -31,10 +86,10 @@ class BackendService {
 }
 
 // Create a context for the backend service
-const BackendContext = createContext<any[] | null>(null)
+const BackendContext = createContext<BackendService | null>(null)
 
 // Custom hook to access the backend service instance
-export const useBackend = (): any[] => {
+export const useBackend = (): BackendService => {
     const backendService = useContext(BackendContext)
     if (!backendService) {
         throw new Error('useBackend must be used within a BackendProvider')
@@ -50,34 +105,24 @@ interface BackendProviderProps {
 export function BackendProvider ({ children } : BackendProviderProps) {
     const [availableAule, setAvailableAule] = useState<any[] | null>(null);
     const backendService = BackendService.getInstance()
+    useEffect(() => {
+        backendService.getSupabase().auth.getSession().then(({ data: { session } }) => {
+          backendService.session = session
+        })
+  
+        const {
+          data: { subscription },
+        } = backendService.getSupabase().auth.onAuthStateChange((_event, session) => {
+            backendService.session = session
+        })
+  
+        return () => subscription.unsubscribe()
+      }, [])
 
     useEffect(() => {
         const fetchAvailableAule = async () => {
-            let aule = await backendService.getAvailableAule()
+            let aule = await backendService.loadAvailableAule()
             if (!aule) return;
-            aule = aule.map((color, index) => {
-                const interval = findInterval(color.availability, new Date().getHours() * 60 + new Date().getMinutes());
-                return {
-                  ...color,
-                  interval: interval,
-                  availability_text: getAvailability(interval)
-                };
-              });
-            
-              aule = aule.sort((a, b) => {
-                if (a.interval.isInInterval === b.interval.isInInterval) {
-                    if (b.interval.wait && a.interval.wait) {
-                        if (a.interval.isInInterval){
-                            return a.interval.wait - b.interval.wait;
-                        } else {
-                            return b.interval.wait - a.interval.wait;
-                        }
-                    } else if (a.interval.isInInterval){
-                        return -1;
-                    }
-                }
-                return a.interval.isInInterval ? 1 : -1;
-              });
             setAvailableAule(aule)
         };
         fetchAvailableAule();
@@ -88,7 +133,7 @@ export function BackendProvider ({ children } : BackendProviderProps) {
     
 
     return (
-            <BackendContext.Provider value={availableAule}>
+            <BackendContext.Provider value={backendService}>
                 {children}
             </BackendContext.Provider>
     )

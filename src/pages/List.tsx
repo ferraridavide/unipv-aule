@@ -36,7 +36,7 @@ import {
     TableRow,
 } from "@/components/ui/table"
 
-import { useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 
 
 import './List.css'
@@ -48,9 +48,10 @@ import { useNavigate } from 'react-router-dom'
 import { useToast } from '@/components/ui/use-toast'
 import { useBackend } from '@/services/backendService'
 import { findInterval, getAvailability } from './Lucky'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
+import { AlertDialogDescription } from '@radix-ui/react-alert-dialog'
 
 const FAV_AULE_STORAGE_KEY = 'favoritedAulas'
-
 
 type Aula = {
 
@@ -63,10 +64,18 @@ type Aula = {
 
 }
 
+type AlertContextType = {
+    open: Aula | null;
+    setOpen: (value: Aula | null) => void;
+  };
+const alertContext = createContext<AlertContextType>({open: null, setOpen: (e) => {}});
 
 
 const servizi = [{label: "Proiettore", value:"projector", icon: Projector}, {label: "LIM", value: "lim", icon: Tv2}, {label: "Prese", value: "plugs", icon: Plug}]
-
+function aulaAvailable(aula: Aula | null): boolean {
+    if (!aula) return false;
+    return findInterval(aula.availability, new Date().getHours() * 60 + new Date().getMinutes()).isInInterval;
+}
 
 
 function DataTableDemo() {
@@ -81,7 +90,7 @@ function DataTableDemo() {
     const [columnVisibility, setColumnVisibility] =
         useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = useState({})
-    const data: Aula[] = backend;
+    const data: Aula[] = backend.getAvailableAule();
 
     function loadAule(): number[] {
         const storedAulas = localStorage.getItem(FAV_AULE_STORAGE_KEY);
@@ -91,10 +100,13 @@ function DataTableDemo() {
         return [];
     }
 
-    function reportUnavailable(aula: Aula): void {
+    async function reportUnavailable(aula: Aula | null): Promise<void> {
+        if (!aula) return;
+        const interval = findInterval(aula.availability, new Date().getHours() * 60 + new Date().getMinutes())
+        const report = await backend.reportAula(aula.id, !interval.isInInterval);
         toast({
             title: "Grazie per il tuo feedback! ☺️",
-            description: `${aula.name} è stato segnalata come non disponibile.`,
+            description: `${aula.name} è stato segnalata come ${interval.isInInterval ? "non disponibile" : "disponibile"}.`,
           })
     };
     
@@ -117,7 +129,14 @@ function DataTableDemo() {
         }
     }
 
+
     function ActionsComponent(row: Row<Aula>): any {
+        const backend = useBackend();
+        const alert = useContext(alertContext);
+
+        const interval = findInterval(row.original.availability, new Date().getHours() * 60 + new Date().getMinutes())
+        const report_text = !interval.isInInterval ? "Segnala come non disponibile" : "Segnala come disponibile";
+        //reportUnavailable(row.original)
         return <div className="flex flex-cols">
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -129,7 +148,7 @@ function DataTableDemo() {
                 <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => window.open(row.original.website, "_blank", "noreferrer")}>Apri calendario aula</DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => reportUnavailable(row.original)}>Segnala come non disponibile</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => alert.setOpen(row.original)}>{report_text}</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate("/report")}>Segnala problema</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
@@ -204,8 +223,30 @@ function DataTableDemo() {
         },
     })
 
+    
+
+    const [alertState, setAlertState] = useState<Aula | null>(null)
+    const hours = [9, 11, 14, 16, 18]
+    const currentHour = (new Date().getUTCHours() + 2);
+    const prevTime = Math.max(...hours.filter(num => num <= currentHour))
+
     return (
-        
+        <alertContext.Provider value={{open: alertState, setOpen: setAlertState}}>
+        <AlertDialog open={alertState !== null}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Sei sicuro?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Stai per riportare {alertState?.name} come {aulaAvailable(alertState!) ? "disponibile" : "non disponbile"} dalle {prevTime}:00 alle {prevTime + 2}:00. 
+            <br/>Sei sicuro di voler procedere?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <Button variant="outline" onClick={() => setAlertState(null)}>Annulla</Button>
+          <Button onClick={() => {setAlertState(null); reportUnavailable(alertState);}}>Segnala</Button>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
         <div className="h-full flex flex-col" >
             <div className="flex flex-1 items-center py-4 space-x-2">
                 <Input
@@ -293,7 +334,7 @@ function DataTableDemo() {
                     </TableBody>
                 </Table>
             </div>
-        </div>
+        </div></alertContext.Provider>
     )
 
     

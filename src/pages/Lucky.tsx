@@ -136,7 +136,7 @@ function Lucky(){
   
   const [tutorial, setTutorial] = useState(true);
 
-  const [cards, setCards] = useState(backend);
+  const [cards, setCards] = useState(backend.getAvailableAule());
   const moveToEnd = (from: number) => {
     setCards(move(cards, from, cards.length - 1));
   };

@@ -13,6 +13,8 @@ import List from './pages/List'
 import { ThemeProvider } from './services/themeProvider'
 import { Toaster } from './components/ui/toaster'
 import { BackendProvider } from './services/backendService'
+import Footer from './pages/Footer'
+import Contacts from './pages/Contacts'
 
 
 function App() {
@@ -40,7 +42,12 @@ function App() {
             <List />
           </section>
           <section className="full-page" ref={refs.report}>
-            <div className="h-full flex items-end justify-center">built with ❤️ by&nbsp;<a href="https://ferraridavide.github.io/" className="underline underline-offset-4">Davide Ferrari</a></div>
+            
+            <div className="h-full flex justify-between flex-col items-center"><div>
+            <Contacts/>
+            <Footer/>
+
+            </div><span>built with ❤️ by&nbsp;<a href="https://ferraridavide.github.io/" className="underline underline-offset-4">Davide Ferrari</a></span></div>
           </section>
         </main>
         <Toaster />
