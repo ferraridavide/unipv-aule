@@ -7,10 +7,10 @@ function Footer() {
     
   
       if (!backend.session) {
-        return (<><div>Logged out</div><button onClick={backend.loginWithGoogle}>LogIn</button></>)
+        return (<><div>Logged out</div><button onClick={async () => await backend.loginWithGoogle()}>LogIn</button></>)
       }
       else {
-        return (<><div>Logged in as {backend.session.user.email}</div><button onClick={backend.logout}>log out</button></>)
+        return (<><div>Logged in as {backend.session.user.email}</div><button onClick={async () => await backend.logout()}>log out</button></>)
       }
 }
 
