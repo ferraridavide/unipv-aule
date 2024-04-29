@@ -11,9 +11,7 @@ class BackendService {
 
         if (!this.session) {
             localStorage.setItem('pendingReport', JSON.stringify(aula));
-            await this.client.auth.signInWithOAuth({
-                provider: 'google',
-              });
+            await this.loginWithGoogle();
             return;
         } 
         await this.client.functions.invoke('report-aula', {
@@ -105,7 +103,7 @@ class BackendService {
     public async logout() {
         await this.client.auth.signOut()
     }
-    
+
 
     public getSupabase(): SupabaseClient{
         return this.client;
