@@ -96,12 +96,13 @@ class BackendService {
     public async loginWithGoogle() {
         await this.client.auth.signInWithOAuth({
             provider: 'google',
-            // options: {redirectTo: 'https://ferraridavide.github.io/unipv-aule'}
+            options: {redirectTo: 'https://ferraridavide.github.io/unipv-aule'}
           })
     }
 
     public async logout() {
         await this.client.auth.signOut()
+        window.location.reload();
     }
 
 

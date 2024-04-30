@@ -133,9 +133,8 @@ function DataTableDemo() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => window.open(row.original.website, "_blank", "noreferrer")}>Apri calendario aula</DropdownMenuItem>
-                    <DropdownMenuSeparator />
+                    {/* <DropdownMenuSeparator /> */}
                     <DropdownMenuItem onClick={() => alertAula.setOpen(row.original)}>{report_text}</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/report")}>Segnala problema</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
             <Button variant="ghost" className="w-8 h-8 p-0" onClick={() => toggleAula(row.original.id)}>

@@ -15,7 +15,7 @@ function Contacts() {
             <AlertDescription>
               <p>Questo sito utilizza i calendari ufficiali di Ateneo per mostrare le aule disponibili.</p>
               <p>Aiutaci a migliorare il servizio mandando una mail precompilata alla segreteria di Ateneo chiedendo di rendere pubblici i calendari delle aule mancanti.</p>
-              <Button asChild className="w-full"><a href={`mailto:aule.ingegneria@unipv.it?cc=davide.ferrari05@universitadipavia.it&subject=${mailSubject}&body=${mailMessage}`}><SendIcon className="mr-2 h-4 w-4" />Invia email precompilata</a></Button>
+              <Button asChild className="w-full mt-2"><a href={`mailto:aule.ingegneria@unipv.it?cc=davide.ferrari05@universitadipavia.it&subject=${mailSubject}&body=${mailMessage}`}><SendIcon className="mr-2 h-4 w-4" />Invia email precompilata</a></Button>
             </AlertDescription>
           </Alert>);
 }

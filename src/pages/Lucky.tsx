@@ -7,7 +7,8 @@ const SCALE_FACTOR = 0.06;
 
 import './Lucky.css'
 import { useBackend } from "@/services/backendService";
-import { LucideTableCellsMerge } from "lucide-react";
+import { LogOutIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 
 export function findInterval(arr: string[], num: number) {
@@ -17,26 +18,26 @@ export function findInterval(arr: string[], num: number) {
 
   // Iterate through each interval
   for (let i = 0; i < arr.length; i++) {
-      // Parse the interval string to extract start and end numbers
-      const [startStr, endStr] = arr[i].split(":");
-      const start = parseInt(startStr);
-      const end = parseInt(endStr);
+    // Parse the interval string to extract start and end numbers
+    const [startStr, endStr] = arr[i].split(":");
+    const start = parseInt(startStr);
+    const end = parseInt(endStr);
 
-      // Check if the number falls within the interval
-      if (num >= start && num <= end) {
-          isInInterval = true;
-          nextInterval = end; // Store the end of the interval
-          break; // Exit the loop since we found the interval
-      }
-      // Check if the number is before the start of this interval
-      else if (num < start) {
-          nextInterval = start;
-          break; // No need to continue looping
-      }
+    // Check if the number falls within the interval
+    if (num >= start && num <= end) {
+      isInInterval = true;
+      nextInterval = end; // Store the end of the interval
+      break; // Exit the loop since we found the interval
+    }
+    // Check if the number is before the start of this interval
+    else if (num < start) {
+      nextInterval = start;
+      break; // No need to continue looping
+    }
   }
 
   // Return the result
-  return { isInInterval, nextInterval, wait: nextInterval ? nextInterval - num : null};
+  return { isInInterval, nextInterval, wait: nextInterval ? nextInterval - num : null };
 }
 
 function minutesToTime(minutes: number) {
@@ -50,7 +51,7 @@ function minutesToTime(minutes: number) {
   return `${paddedHours}:${paddedMins}`;
 }
 
-export function getAvailability(interval: any){
+export function getAvailability(interval: any) {
   return (interval.isInInterval ? "Occupata" : "Disponibile") + " fino " + (interval.nextInterval ? "alle " + minutesToTime(interval.nextInterval) : " a chiusura");
 }
 
@@ -79,7 +80,7 @@ const wrapperStyle: React.CSSProperties = {
   width: "100%",
 };
 
-function clamp(number: number, min:number, max:number) {
+function clamp(number: number, min: number, max: number) {
   return Math.max(min, Math.min(number, max));
 }
 
@@ -88,12 +89,12 @@ const Card = (props: any) => {
   const tutorialCondition = props.index == 0 && props.tutorial;
   const time = useTime();
   const loopTime = useTransform(() => time.get() % 4000);
-  const tutorialAnimation = useTransform(loopTime, [0, 3000, 3400, 3600, 4000], [0, 0, 100,100, 0], {clamp: true, ease: circInOut});
+  const tutorialAnimation = useTransform(loopTime, [0, 3000, 3400, 3600, 4000], [0, 0, 100, 100, 0], { clamp: true, ease: circInOut });
   const xVal = useMotionValue(0);
   const x = useTransform(() => xVal.get() + (tutorialCondition ? tutorialAnimation.get() : 0));
   const rotate = useTransform(x, [-700, 700], [-45, 45]);
 
- 
+
 
   return (
     <motion.li
@@ -123,17 +124,17 @@ const Card = (props: any) => {
       }}
     >
       <h1 className="hero-text">{props.color.short_name}</h1>
-    <div className="hero-details">
-      <span>{props.color.name} - {props.color.building}</span>
-      <span>{props.color.availability_text}</span>
-    </div>
+      <div className="hero-details">
+        <span>{props.color.name} - {props.color.building}</span>
+        <span>{props.color.availability_text}</span>
+      </div>
     </motion.li>
   );
 };
 
-function Lucky(){
+function Lucky() {
   const backend = useBackend();
-  
+
   const [tutorial, setTutorial] = useState(true);
 
   const [cards, setCards] = useState(backend.getAvailableAule());
@@ -142,24 +143,29 @@ function Lucky(){
   };
 
   return (
-    <div style={wrapperStyle} onMouseDown={() => setTutorial(false)} onTouchStart={() => setTutorial(false)}>
-      <ul className="cardWrap">
-        {[...cards.slice(0,3), cards[cards.length -1]].map((color, index) => {
-          const canDrag = index === 0;
+    <>
+    {backend.session !== null ? <Button variant="outline" size="icon" className="absolute" style={{right: "2rem", zIndex: 10}} onClick={() => backend.logout()}>
+      <LogOutIcon className="h-4 w-4" />
+    </Button> : null}
+      <div style={wrapperStyle} onMouseDown={() => setTutorial(false)} onTouchStart={() => setTutorial(false)}>
+        <ul className="cardWrap">
+          {[...cards.slice(0, 3), cards[cards.length - 1]].map((color, index) => {
+            const canDrag = index === 0;
 
-          return (
-            <Card
-              tutorial={tutorial}
-              key={color.id}
-              color={color}
-              index={index}
-              canDrag={canDrag}
-              moveToEnd={moveToEnd}
-            />
-          );
-        })}
-      </ul>
-    </div>
+            return (
+              <Card
+                tutorial={tutorial}
+                key={color.id}
+                color={color}
+                index={index}
+                canDrag={canDrag}
+                moveToEnd={moveToEnd}
+              />
+            );
+          })}
+        </ul>
+      </div>
+    </>
   );
 }
 
