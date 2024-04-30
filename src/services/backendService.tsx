@@ -15,7 +15,7 @@ class BackendService {
             return;
         } 
         await this.client.functions.invoke('report-aula', {
-            body: aula,
+            body: {id: aula.id, open: aula.interval.isInInterval},
             headers: {
               "Authentication": "Bearer " + this.session.access_token
             }

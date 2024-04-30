@@ -7,6 +7,7 @@ type Aula = {
     services: string[]
     website: string
     reports: string[]
+    interval: any
     currentReportStr: string
 
 }
