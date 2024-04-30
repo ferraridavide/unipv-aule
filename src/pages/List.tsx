@@ -49,7 +49,6 @@ import { useBackend } from '@/services/backendService'
 import { findInterval, getAvailability } from './Lucky'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { AlertDialogDescription } from '@radix-ui/react-alert-dialog'
-import { AuthInvalidCredentialsError } from '@supabase/supabase-js'
 import Aula from '@/models/aula'
 
 const FAV_AULE_STORAGE_KEY = 'favoritedAulas'
@@ -166,7 +165,8 @@ function DataTableDemo() {
             accessorKey: "availability_text",
             header: "Libera per",
             cell: ({ row }) => {
-                return <div>{row.getValue("availability_text")}</div>
+                const report = row.original.currentReportStr;
+                return <div>{row.getValue("availability_text")} {(report ? <span style={{color: "darkorange"}}> ({report})</span> : null)}</div>
             },
         },
         {

@@ -6,6 +6,8 @@ type Aula = {
     availability: string[]
     services: string[]
     website: string
+    reports: string[]
+    currentReportStr: string
 
 }
 

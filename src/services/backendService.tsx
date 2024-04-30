@@ -1,6 +1,6 @@
 import { useToast } from '@/components/ui/use-toast';
 import Aula from '@/models/aula';
-import { findInterval, getAvailability } from '@/pages/Lucky'
+import { findInterval, getAvailability, getCurrentReport } from '@/pages/Lucky'
 import { Session, SupabaseClient, createClient } from '@supabase/supabase-js'
 import { ReactNode, createContext, useContext, useEffect, useState, Suspense } from 'react'
 
@@ -72,7 +72,8 @@ class BackendService {
                 return {
                   ...color,
                   interval: interval,
-                  availability_text: getAvailability(interval)
+                  availability_text: getAvailability(interval),
+                  currentReportStr: getCurrentReport(color.reports, interval.isInInterval),
                 };
               });
             

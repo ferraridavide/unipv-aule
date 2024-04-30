@@ -9,6 +9,7 @@ import './Lucky.css'
 import { useBackend } from "@/services/backendService";
 import { LogOutIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Aula from "@/models/aula";
 
 
 export function findInterval(arr: string[], num: number) {
@@ -53,6 +54,22 @@ function minutesToTime(minutes: number) {
 
 export function getAvailability(interval: any) {
   return (interval.isInInterval ? "Occupata" : "Disponibile") + " fino " + (interval.nextInterval ? "alle " + minutesToTime(interval.nextInterval) : " a chiusura");
+}
+
+export function getCurrentReport(arr: string[], openCond: boolean){
+  if (!arr) return "";
+  const currentMin = new Date().getHours() * 60 + new Date().getMinutes();
+  // cycle arr from last to first
+  for (let i = arr.length - 1; i >= 0; i--) {
+    const [openStr, startStr, endStr] = arr[i].split(":");
+    const open = openStr === "true";
+    const start = parseInt(startStr);
+    const end = parseInt(endStr);
+    if (open == openCond && currentMin >= start && currentMin <= end) {
+      return "segnalata " + (open ? "aperta" : "chiusa") + " fino alle " + minutesToTime(end);
+    }
+  }
+  return null;
 }
 
 // Example usage:
@@ -127,6 +144,7 @@ const Card = (props: any) => {
       <div className="hero-details">
         <span>{props.color.name} - {props.color.building}</span>
         <span>{props.color.availability_text}</span>
+        {props.color.currentReportStr && <span>({props.color.currentReportStr})</span>}
       </div>
     </motion.li>
   );
