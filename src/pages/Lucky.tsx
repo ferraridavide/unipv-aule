@@ -61,6 +61,7 @@ export function getCurrentReport(arr: string[], openCond: boolean){
   const currentMin = new Date().getHours() * 60 + new Date().getMinutes();
   // cycle arr from last to first
   for (let i = arr.length - 1; i >= 0; i--) {
+    if (!arr[i]) continue;
     const [openStr, startStr, endStr] = arr[i].split(":");
     const open = openStr === "true";
     const start = parseInt(startStr);
