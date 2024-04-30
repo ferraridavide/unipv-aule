@@ -257,6 +257,7 @@ function DataTableDemo() {
                                         <div className="flex flex-col">
                                             <span className="font-bold">{row.getValue("name")}</span>
                                             <span>{row.getValue("availability_text")}</span>
+                                            {row.original.currentReportStr ? <span style={{color: "darkorange"}}>({row.original.currentReportStr})</span> : null}
                                         </div>
                                         {ActionsComponent(row, {open: alertState, setOpen: setAlertState})}
                                     </div>
