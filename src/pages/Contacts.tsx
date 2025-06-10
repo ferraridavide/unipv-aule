@@ -9,7 +9,7 @@ import { useState } from "react";
 
 function Contacts() {
   
-    const mailMessage = `Con la presente desideriamo richiedere accesso al calendario relativo all'aula [inserire qui], al fine di integrare le informazioni sul sito https://ferraridavide.github.io/unipv-aule/.%0D%0AQuesta integrazione consentirebbe una più efficace individuazione delle aule disponibili per lo studio.%0D%0ARimaniamo a disposizione per ulteriori informazioni o chiarimenti.%0D%0ACordiali saluti`
+    const mailMessage = `Con la presente desideriamo richiedere accesso al calendario relativo all'aula [inserire qui], al fine di integrare le informazioni sul sito https://unipv.davide.im/.%0D%0AQuesta integrazione consentirebbe una più efficace individuazione delle aule disponibili per lo studio.%0D%0ARimaniamo a disposizione per ulteriori informazioni o chiarimenti.%0D%0ACordiali saluti`
 
     const mailSubject = "Richiesta di accesso al calendario dell'aula [inserire qui]"
 
